@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -45,23 +46,31 @@ namespace login
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (isValid())
-            {
-                using (SqlConnection conn = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\User\source\repos\login\login\Database1.mdf;Integrated Security=True"))
-                {
-                    string query="SELECT*FROM LOGIN WHERE username='"+textBox1.Text.Trim()+"'AND password='" + textBox2.Text.Trim()+"'";
-                    SqlDataAdapter sda = new SqlDataAdapter(query, conn);
-                    DataTable dta = new DataTable();
-                    sda.Fill(dta);
-                    if (dta.Rows.Count==1)
-                    {
-                        dashboard dashboard= new dashboard();
-                        this.Hide();
-                        dashboard.Show();
-                    }
-                }
+            String loginUser = textBox1.Text;
+            String PassUser = textBox2.Text;
 
-            }
+            DB db = new DB();
+
+            DataTable table = new DataTable();
+
+            MySqlDataAdapter adapter = new MySqlDataAdapter();
+
+            MySqlCommand command = new MySqlCommand("SELECT * FROM users WHERE login= @ userlogin AND password = @userpassword", db.GetConnection());
+            command.Parameters.Add("@userlogin", MySqlDbType.VarChar).Value = loginUser;
+            command.Parameters.Add("@userpassword", MySqlDbType.VarChar).Value = PassUser;
+
+            adapter.SelectCommand = command;
+            adapter.Fill(table);
+
+            if (table.Rows.Count > 0)
+                MessageBox.Show("Yes");
+            else
+                MessageBox.Show("No");
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
